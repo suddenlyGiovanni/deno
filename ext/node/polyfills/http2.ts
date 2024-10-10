@@ -67,7 +67,7 @@ import {
   ERR_SOCKET_CLOSED,
   ERR_STREAM_WRITE_AFTER_END,
 } from "ext:deno_node/internal/errors.ts";
-import { _checkIsHttpToken } from "ext:deno_node/_http_common.ts";
+import { _checkIsHttpToken } from "node:_http_common";
 const {
   StringPrototypeTrim,
   FunctionPrototypeBind,
@@ -840,6 +840,11 @@ async function clientHttp2Request(
     reqHeaders,
   );
 
+  if (session.closed || session.destroyed) {
+    debugHttp2(">>> session closed during request promise");
+    throw new ERR_HTTP2_STREAM_CANCEL();
+  }
+
   return await op_http2_client_request(
     session[kDenoClientRid],
     pseudoHeaders,
@@ -900,6 +905,12 @@ export class ClientHttp2Stream extends Duplex {
         session[kDenoClientRid],
         this.#rid,
       );
+
+      if (session.closed || session.destroyed) {
+        debugHttp2(">>> session closed during response promise");
+        throw new ERR_HTTP2_STREAM_CANCEL();
+      }
+
       const [response, endStream] = await op_http2_client_get_response(
         this.#rid,
       );
@@ -918,7 +929,12 @@ export class ClientHttp2Stream extends Duplex {
       );
       this[kDenoResponse] = response;
       this.emit("ready");
-    })();
+    })().catch((e) => {
+      if (!(e instanceof ERR_HTTP2_STREAM_CANCEL)) {
+        debugHttp2(">>> request/response promise error", e);
+      }
+      this.destroy(e);
+    });
   }
 
   [kUpdateTimer]() {
@@ -2279,7 +2295,7 @@ function onStreamTimeout(kind) {
   };
 }
 
-class Http2ServerRequest extends Readable {
+export class Http2ServerRequest extends Readable {
   readableEnded = false;
 
   constructor(stream, headers, options, rawHeaders) {
@@ -2507,7 +2523,7 @@ function isConnectionHeaderAllowed(name, value) {
     value === "trailers";
 }
 
-class Http2ServerResponse extends Stream {
+export class Http2ServerResponse extends Stream {
   writable = false;
   req = null;
 

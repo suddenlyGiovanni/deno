@@ -532,7 +532,7 @@ MC4CAQAwBQYDK2VwBCIEIJ1hsZ3v/VpguoRK9JLsLMREScVpezJpGXA7rAMcrn9g
   assertEquals(pkcs8Actual, pkcs8Expected);
 });
 
-Deno.test("RSA export public JWK", async function () {
+Deno.test("RSA export public JWK", function () {
   const importKey = "-----BEGIN PUBLIC KEY-----\n" +
     "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAqF66soiDvuqUB7ufWtuV\n" +
     "5a1nZIw90m9qHEl2MeNt66HeEjG2GeHDfF5a4uplutnAh3dwpFweHqGIyB16POTI\n" +
@@ -557,7 +557,7 @@ Deno.test("RSA export public JWK", async function () {
   });
 });
 
-Deno.test("EC export public jwk", async function () {
+Deno.test("EC export public jwk", function () {
   const key = "-----BEGIN PUBLIC KEY-----\n" +
     "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEVEEIrFEZ+40Pk90LtKBQ3r7FGAPl\n" +
     "v4bvX9grC8bNiNiVAcyEKs+QZKQj/0/CUPJV10AmavrUoPk/7Wy0sejopQ==\n" +
@@ -573,7 +573,7 @@ Deno.test("EC export public jwk", async function () {
   });
 });
 
-Deno.test("Ed25519 export public jwk", async function () {
+Deno.test("Ed25519 export public jwk", function () {
   const key = "-----BEGIN PUBLIC KEY-----\n" +
     "MCowBQYDK2VwAyEAKCVFOD6Le61XM7HbN/MB/N06mX5bti2p50qjLvT1mzE=\n" +
     "-----END PUBLIC KEY-----\n";
@@ -630,4 +630,29 @@ xjwfpTZOdWW36U3GRuXn12QyITRg6el7ro6CajhCVNg9nJIxvZzp0jyE
 `;
 
   assertEquals(privatePkcs8, pkcs8Expected);
+});
+
+Deno.test("createPublicKey x509", function () {
+  const certificate = `-----BEGIN CERTIFICATE-----
+MIIC8zCCAdugAwIBAgIBATANBgkqhkiG9w0BAQsFADAbMRkwFwYDVQQDExB0ZXN0
+LWNlcnRpZmljYXRlMB4XDTI0MDkxNzA5MTczNVoXDTI3MDkxNzA5MTczNVowGzEZ
+MBcGA1UEAxMQdGVzdC1jZXJ0aWZpY2F0ZTCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBAMOzTIrwvbUbPIrxCr5DO1XMd3tH37pID0no4cOUq1hxNEnB4l1j
+2201atvmXwzWI3xtPzfwOYUtE/DGagFh805/nod5yXwR6liGd9RjkABxPi0UF7jl
+lWHfBLyILUHVR9hEOl65vUpKx5ORNgbO9L7WsL/FKH9pvCbWjdI29+pQnZ4gOoWZ
+YC6auoKfG7TcbaFb9AubolcIlofC2MHP+cWjPA+iX6ezUqqN1Ug5xGiF/sC79M0o
+5d6E83zdXxyyFwydUWUv3EKgmVTLln/2hYQFKCRhy72n6L7y9JNcieOauQK0efJB
++2HwaWeAr2xkhSnWVCRl4nEgiu/E0nL/zNUCAwEAAaNCMEAwDgYDVR0PAQH/BAQD
+AgGGMA8GA1UdEwEB/wQFMAMBAf8wHQYDVR0OBBYEFIAeXho137l8V6daKI33IvRb
+N6CyMA0GCSqGSIb3DQEBCwUAA4IBAQAQU1Sast6VsD4uTJiSz/lSEkLZ6wC/6v+R
+az0YSnbNmQ5YczBLdTLs07hBC1tDvv0vfopRXvNxP7AxkopX5O7Lc15zf5JdTZnY
+/tJwO62jZiaLsfAo2JzrZ31h2cFFFRTYPTx+8E4djgdmwKtaECeQFXqdpOHOJCGv
+NfwVlZ7Z/cd8fI8oiNtvJDAhPa/UZXAhFV74hT0DiuMwPiJvsG83rutvAYpZ8lPu
+yG6QSsxPnxzEHIKR+vgxUHKwTdv0sWt3XBmpIY5CGXFR2eIQP1jv0ohtcnLMJe8N
+z6TExWlQMjt66nV7R8cRAkzmABrG+NW3e8Zpac7Lkuv+zu0S+K7c
+-----END CERTIFICATE-----`;
+
+  const publicKey = createPublicKey(certificate);
+  assertEquals(publicKey.type, "public");
+  assertEquals(publicKey.asymmetricKeyType, "rsa");
 });
