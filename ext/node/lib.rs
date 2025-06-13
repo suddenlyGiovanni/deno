@@ -223,6 +223,7 @@ enum DotEnvLoadErr {
 }
 
 #[op2(fast)]
+#[undefined]
 fn op_node_load_env_file(
   state: &mut OpState,
   #[string] path: &str,
@@ -300,6 +301,7 @@ deno_core::extension!(deno_node,
     ops::crypto::op_node_hkdf,
     ops::crypto::op_node_pbkdf2_async,
     ops::crypto::op_node_pbkdf2,
+    ops::crypto::op_node_pbkdf2_validate,
     ops::crypto::op_node_private_decrypt,
     ops::crypto::op_node_private_encrypt,
     ops::crypto::op_node_public_encrypt,
@@ -478,6 +480,7 @@ deno_core::extension!(deno_node,
     ops::require::op_require_break_on_next_statement,
     ops::util::op_node_guess_handle_type,
     ops::util::op_node_view_has_buffer,
+    ops::util::op_node_call_is_from_dependency<TInNpmPackageChecker, TNpmPackageFolderResolver, TSys>,
     ops::worker_threads::op_worker_threads_filename<P, TSys>,
     ops::ipc::op_node_child_ipc_pipe,
     ops::ipc::op_node_ipc_write,
@@ -503,7 +506,8 @@ deno_core::extension!(deno_node,
     ops::sqlite::Session,
     ops::handle_wrap::AsyncWrap,
     ops::handle_wrap::HandleWrap,
-    ops::sqlite::StatementSync
+    ops::sqlite::StatementSync,
+    ops::crypto::digest::Hasher,
   ],
   esm_entry_point = "ext:deno_node/02_init.js",
   esm = [
